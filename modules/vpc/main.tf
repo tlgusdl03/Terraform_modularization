@@ -3,7 +3,7 @@
 ################################################################################
 
 module "vpc" {
-#   for_each = { for idx, az in var.azs : idx => az }
+  # for_each = { for idx, az in var.azs : idx => az }
 
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -25,20 +25,18 @@ module "vpc" {
   one_nat_gateway_per_az = true
 
   public_subnet_tags = {
-#     "Name" = "${var.name}-public-subnet-${each.key + 1}"  # 숫자 추가
+    "Name" = "${var.name}-public-subnet"  # 숫자 추가
     "kubernetes.io/role/elb" = 1
   }
 
   private_subnet_tags = {
-#     "Name" = "${var.name}-private-subnet-${each.key + 1}"  # 숫자 추가
+    "Name" = "${var.name}-private-subnet"  # 숫자 추가
     "kubernetes.io/role/internal-elb" = 1
     "karpenter.sh/discovery" = var.name
   }
 
   intra_subnet_tags = {
-#     for index, az in var.azs :
-#     "Name" = "${var.name}-db-subnet-${each.key + 1}"  # 숫자 추가
-    "Name" = "${var.name}-db-subnet"
+    "Name" = "${var.name}-db-subnet"  # 숫자 추가
   }
   tags = var.tags
 }
@@ -75,7 +73,7 @@ resource "aws_vpc_endpoint" "ecr_endpoint" {
   vpc_endpoint_type = "Interface"
 
   security_group_ids = [
-    aws_security_group.ecr_endpoint_sg.id,
+    aws_security_group.ecr_endpoint_sg.id
   ]
 
   private_dns_enabled = true

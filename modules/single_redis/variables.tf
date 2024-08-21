@@ -28,10 +28,10 @@ variable "replication_group_id" {
   type        = string
 }
 
-variable "description" {
-  description = "Description of the Redis replication group"
-  type        = string
-}
+# variable "description" {
+#   description = "Description of the Redis replication group"
+#   type        = string
+# }
 
 variable "engine_version" {
   description = "The version of the Redis engine"
@@ -74,7 +74,7 @@ variable "preferred_cache_cluster_azs" {
   type        = list(string)
 }
 
-variable "replication_group_name" {
-  description = "The name of the Redis replication group"
-  type        = string
-}
+# variable "replication_group_name" {
+#   description = "The name of the Redis replication group"
+#   type        = string
+# }

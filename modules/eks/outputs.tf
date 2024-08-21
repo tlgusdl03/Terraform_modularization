@@ -17,3 +17,8 @@ output "lb_controller_role_arn" {
   description = "IAM Role arn for Load Balancer Controller"
   value = module.lb_controller_role.iam_role_arn
 }
+
+output "node_security_group_id" {
+  description = "ID of sg for EKS node"
+  value = module.eks.node_security_group_id
+}

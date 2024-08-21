@@ -1,3 +1,6 @@
+##################################################################################
+# 컨벤션 룰 : <주 리전/보조 리전>-<환경>-<대분류>-<리소스 종류>-<설명>
+##########################################################################
 terraform {
   required_version = ">= 1.3.2"
 
@@ -25,6 +28,20 @@ provider "aws" {
 provider "aws" {
   alias = "secondary"
   region = "us-east-1"
+}
+##############################################################################
+# Setting Backend
+##############################################################################
+terraform {
+  backend "s3" {
+  # Replace this with your bucket name!
+  bucket = "lsh-terraform-backend-test"
+  key = "global/s3/terraform.tfstate"
+  region = "ap-northeast-2"
+  # Replace this with your DynamoDB table name!
+  dynamodb_table = "terraform_lock"
+  encrypt = true
+ }
 }
 ##############################################################################
 # Create VPC
@@ -135,7 +152,7 @@ module "kubernetes" {
   source = "../modules/kubernetes"
 
   alb_image_repository               = "602401143452.dkr.ecr.ap-northeast-2.amazonaws.com/amazon/aws-load-balancer-controller"
-  cluster_name                       = "dev-ecom-cluster"
+  cluster_name                       = module.eks.eks_cluster_name
   dependency                         = module.eks
   lb_controller_role_arn             = module.eks.lb_controller_role_arn
   lb_controller_service_account_name = "aws-load-balancer-controller"
@@ -144,5 +161,19 @@ module "kubernetes" {
 
   environment = "dev"
 
-  depends_on = [module.eks]
+}
+#######################################################################################
+# Create Single redis
+#######################################################################################
+module "single_redis" {
+  source = "../modules/single_redis"
+
+  node_security_group_ids = [module.eks.node_security_group_id]
+  preferred_cache_cluster_azs = module.vpc.azs
+  replication_group_id   = "primary-dev-ecom-redis"
+  security_group_name    = "primary-dev-ecom-sg-redis"
+  subnet_group_name      = "primary-dev-ecom-subgroup-redis"
+  subnet_ids = module.vpc.database_subnets
+  vpc_id                 = module.vpc.vpc_id
+  depends_on = [module.vpc]
 }

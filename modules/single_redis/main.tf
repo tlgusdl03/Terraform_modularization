@@ -4,7 +4,7 @@ resource "aws_elasticache_subnet_group" "redis" {
   subnet_ids = var.subnet_ids
 
   tags = {
-    Name = "redis"
+    Name = "${var.subnet_group_name}"
   }
 }
 
@@ -36,7 +36,7 @@ resource "aws_security_group" "redis_sg" {
 # Redis Replication Group 생성
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id          = var.replication_group_id
-  description                   = var.description
+  description                   = var.replication_group_id
   engine                        = "redis"
   engine_version                = var.engine_version
   node_type                     = var.node_type
@@ -49,6 +49,6 @@ resource "aws_elasticache_replication_group" "redis" {
   preferred_cache_cluster_azs   = var.preferred_cache_cluster_azs
 
   tags = {
-    Name = var.replication_group_name
+    Name = var.replication_group_id
   }
 }
