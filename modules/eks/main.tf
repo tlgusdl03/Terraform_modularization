@@ -44,7 +44,6 @@ module "eks" {
       instance_types = ["t3.medium"]
     }
   }
-
 }
 
 ################################################################################
@@ -69,7 +68,6 @@ module "vpc_cni_irsa" {
 ################################################################################
 ## 로드밸런서 콘트롤러 설정
 ################################################################################
-
 locals {
   lb_controller_iam_role_name = "lb-controller-role"
   k8s_aws_lb_service_account_namespace = "kube-system"
@@ -99,3 +97,16 @@ module "lb_controller_role" {
     "sts.amazonaws.com"
   ]
 }
+
+# ################################################################################
+# # AWS Load Balancer Controller IAM Role Policy
+# ################################################################################
+# data "http" "iam_policy" {
+#   url = var.lb_controller_policy_url
+# }
+#
+# resource "aws_iam_role_policy" "eks_controller_policy" {
+#   name_prefix = var.lb_controller_policy_name_prefix
+#   role        = var.lb_controller_role_name
+#   policy      = data.http.iam_policy.response_body
+# }

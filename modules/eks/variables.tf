@@ -42,3 +42,23 @@ variable "lb_controller_iam_role_name" {
   description = "lb_controller_iam_role의 이름을 정합니다"
   type = string
 }
+#
+# variable "kubernetes_role" {
+#   description = "EKS 클러스터에서 접근 권한에 대한 설정"
+#   type = any
+# }
+
+# variable "lb_controller_policy_url" {
+#   description = "URL of the IAM policy for AWS Load Balancer Controller"
+#   type        = string
+# }
+#
+# variable "lb_controller_policy_name_prefix" {
+#   description = "Prefix for the AWS Load Balancer Controller IAM policy name"
+#   type        = string
+# }
+#
+# variable "lb_controller_role_name" {
+#   description = "IAM role name for AWS Load Balancer Controller"
+#   type        = string
+# }
