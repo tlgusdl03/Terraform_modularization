@@ -22,7 +22,7 @@ terraform {
 
 provider "aws" {
   alias = "primary"
-  region = "ap-southeast-2"
+  region = "ap-northeast-2"
 }
 
 provider "aws" {
@@ -54,9 +54,9 @@ module "vpc_primary" {
 
   source = "../../modules/vpc"
 
-  azs = ["ap-southeast-2a", "ap-southeast-2c"]
+  azs = ["ap-northeast-2a", "ap-northeast-2c"]
   ecr_endpoint_sg_name = "primary-prod-ecom-sg-ecr-endpoint"
-  ecr_service_name     = "com.amazonaws.ap-southeast-2.ssm"
+  ecr_service_name     = "com.amazonaws.ap-northeast-2.ssm"
   name                 = "primary-prod-ecom-endpoint-ecr"
   tags = {
     Name = "primary-prod-ecom-vpc"
@@ -65,18 +65,18 @@ module "vpc_primary" {
 
   # public_subnets: CIDR 블록 /27 크기 (32 IP)
   database_subnets_cidr = [
-    "10.0.0.0/27",  # pub01: 10.0.0.0/27
-    "10.0.0.32/27"   # pub02: 10.0.0.32/27
+    "10.0.0.192/27",  # db-pri01: 10.0.0.192/27
+    "10.0.0.224/27"  # db-pri02: 10.0.0.224/27
   ]
   # private_subnets: CIDR 블록 /26 크기 (64 IP)
   private_subnets_cidr = [
     "10.0.0.64/26",  # pri01: 10.0.0.64/26
-    "10.0.0.128/26"   # pri02: 10.0.0.128/26
+    "10.0.0.128/26"  # pri02: 10.0.0.128/64
   ]
   # db_subnets: CIDR 블록 /27 크기 (32 IP)
   public_subnets_cidr = [
-    "10.0.0.192/27",  # db-pri01: 10.0.0.192/27
-    "10.0.0.224/27"   # db-pri02: 10.0.0.224/27
+    "10.0.0.0/27",  # pub01: 10.0.0.0/27
+    "10.0.0.32/27" # pub02: 10.0.0.32/27
   ]
 
   ecr_endpoint_subnet_ids = module.vpc_primary.private_subnets
@@ -93,28 +93,28 @@ module "vpc_secondary" {
   source = "../../modules/vpc"
 
   azs = ["us-east-1a", "us-east-1c"]
-  ecr_endpoint_sg_name = "primary-prod-ecom-sg-ecr-endpoint"
+  ecr_endpoint_sg_name = "secondary-prod-ecom-sg-ecr-endpoint"
   ecr_service_name     = "com.amazonaws.us-east-1.ssm"
   name                 = "secondary-prod-ecom-endpoint-ecr"
   tags = {
-    Name = "secondary-dev-ecom-vpc"
+    Name = "secondary-prod-ecom-vpc"
   }
   vpc_cidr             = "10.0.0.0/24"
 
   # public_subnets: CIDR 블록 /27 크기 (32 IP)
   database_subnets_cidr = [
-    "10.0.0.0/27",  # pub01: 10.0.0.0/27
-    "10.0.0.32/27"   # pub02: 10.0.0.32/27
+    "10.0.0.192/27",  # db-pri01: 10.0.0.192/27
+    "10.0.0.224/27"  # db-pri02: 10.0.0.224/27
   ]
   # private_subnets: CIDR 블록 /26 크기 (64 IP)
   private_subnets_cidr = [
     "10.0.0.64/26",  # pri01: 10.0.0.64/26
-    "10.0.0.128/26"   # pri02: 10.0.0.128/26
+    "10.0.0.128/26"  # pri02: 10.0.0.128/64
   ]
   # db_subnets: CIDR 블록 /27 크기 (32 IP)
   public_subnets_cidr = [
-    "10.0.0.192/27",  # db-pri01: 10.0.0.192/27
-    "10.0.0.224/27"   # db-pri02: 10.0.0.224/27
+    "10.0.0.0/27",  # pub01: 10.0.0.0/27
+    "10.0.0.32/27" # pub02: 10.0.0.32/27
   ]
 
   ecr_endpoint_subnet_ids = module.vpc_secondary.private_subnets
@@ -123,18 +123,21 @@ module "vpc_secondary" {
 # Create Primary ec2
 ########################################################################################
 module "ec2" {
+  providers = {
+    aws = aws.primary
+  }
   source = "../../modules/ec2"
 
-  ami_id                    = "ami-0c2acfcb2ac4d02a0"
-  iam_instance_profile_name = "primary-dev-ec2_cli_profile_allow_ssm"
+  ami_id                    = "ami-008d41dbe16db6778"
+  iam_instance_profile_name = "primary-prod-ec2_cli_profile_allow_ssm"
   iam_instance_profile_role = module.iam.ecom-role-ec2cli_name
-  iam_role_name             = "primary-dev-ecom-role-ec2cli"
-  instance_name             = "primary-dev-ecom-ec2-cli"
+  iam_role_name             = "primary-prod-ec2_cli_profile_allow_ssm"
+  instance_name             = "primary-prod-ecom-ec2-cli"
   instance_type             = "t3.micro"
-  key_name                  = "primary-dev-ecom-kp-cli"
+  key_name                  = "primary-prod-ecom-kp-cli"
   pem_location              = "."
-  sg_description            = "primary-dev-ecom-sg-cli"
-  sg_name                   = "primary-dev-ecom-sg-cli"
+  sg_description            = "primary-prod-ecom-sg-cli"
+  sg_name                   = "primary-prod-ecom-sg-cli"
   subnet_id                 = module.vpc_primary.private_subnets[0]
   user_data                 = file("${path.module}/user_data.sh")
   vpc_id                    = module.vpc_primary.vpc_id
@@ -149,10 +152,10 @@ module "iam" {
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
   ]
-  ec2cli_role_name                 = "ecom-role-ec2cli"
+  ec2cli_role_name                 = "primary-prod-ec2_cli_profile_allow_ssm"
   lb_controller_policy_name_prefix = "AWSLoadBalancerControllerIAMPolicy"
   lb_controller_policy_url         = "https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.6.2/docs/install/iam_policy.json"
-  lb_controller_role_name          = "lb-controller-role"
+  lb_controller_role_name          = module.eks.lb_controller_role_name
 }
 #####################################################################################
 # Create EKS
@@ -165,7 +168,7 @@ module "eks" {
 
   source = "../../modules/eks"
   additional_security_group_id = module.ec2.ec2-sg-cli
-  cluster_name                 = "primary-dev-ecom-cluster"
+  cluster_name                 = "primary-dev-ecom-cluster-3"
   cluster_version              = "1.30"
   private_subnets = module.vpc_primary.private_subnets
   vpc_id                       = module.vpc_primary.vpc_id
@@ -174,7 +177,7 @@ module "eks" {
   eks_node_group_node_max_size    = 4
   eks_node_group_node_min_size    = 2
 
-  lb_controller_iam_role_name = "primary-dev-ecom-lb-controller-iam-role"
+  lb_controller_iam_role_name = "primary-prod-ecom-lb-controller-iam-role"
 
 }
 #####################################################################################
@@ -192,31 +195,60 @@ module "kubernetes" {
   dependency                         = module.eks
   lb_controller_role_arn             = module.eks.lb_controller_role_arn
   lb_controller_service_account_name = "aws-load-balancer-controller"
-  region                             = "ap-southeast-2"
+  region                             = "ap-northeast-2"
   vpc_id                             = module.vpc_primary.vpc_id
 
-  environment = "dev"
+  environment = "prod"
 }
-#####################################################################################
-# Create Global redis
-#####################################################################################
-module "redis_global" {
-  source = "../../modules/redis/redis_global_cluster"
+#######################################################################################
+# Create Single redis
+#######################################################################################
+module "single_redis" {
 
+  providers = {
+    aws = aws.primary
+  }
 
-  eks_node_security_group_id          = module.eks.node_security_group_id
-  primary_redis_security_group_name   = "primary-dev-ecom-sg-redis"
-  primary_redis_subnet_group_name     = "primary-dev-ecom-subgroup-redis"
-  primary_subnet_ids = module.vpc_primary.private_subnets
-  primary_vpc_id                      = module.vpc_primary.vpc_id
-  redis_description                   = "redis"
-  redis_primary_preferred_cache_cluster_azs = ["ap-southeast-2a", "ap-southeast-2c"]
-  primary_redis_replication_group_id          = "primary-dev-ecom-redis"
-  secondary_redis_replication_group_id = "secondary-dev-ecom-redis"
-  redis_secondary_preferred_cache_cluster_azs = ["ap-southeast-1a", "ap-southeast-1c"]
-  secondary_redis_security_group_name = "secondary-dev-ecom-sg-redis"
-  secondary_redis_subnet_group_name   = "secondary-dev-ecom-subgroup-redis"
-  secondary_subnet_ids = module.vpc_secondary.private_subnets
-  secondary_vpc_id                    = module.vpc_secondary.vpc_id
-  redis_replicas_per_node_group = 1
+  source = "../../modules/single_redis"
+
+  node_security_group_ids = [module.eks.node_security_group_id]
+  preferred_cache_cluster_azs = module.vpc_primary.azs
+  replication_group_id   = "primary-prod-ecom-redis"
+  security_group_name    = "primary-prod-ecom-sg-redis"
+  subnet_group_name      = "primary-prod-ecom-subgroup-redis"
+  subnet_ids = module.vpc_primary.database_subnets
+  vpc_id                 = module.vpc_primary.vpc_id
+  depends_on = [module.vpc_primary]
+
+  redis_number_cache_cluster = 2
+}
+########################################################################################
+# Create Aurora Global Cluster
+########################################################################################
+module "global_aurora" {
+  source = "../../modules/rds/rds_global_cluster"
+
+  database_name                             = "devecomauroracluster"
+  engine                                    = "aurora-mysql"
+  engine_version                            = ""
+  global_cluster_identifier                 = "dev-ecom-global-database"
+  primary_vpc_database_subnet_group_name    = "primary-prod-ecom-subgroup-rds"
+  primary_vpc_id                            = module.vpc_primary.vpc_id
+  # 해당 리전 aurora 클러스터에 적용할 보안그룹에서 허용할 cidr
+  primary_vpc_private_subnets_cidr_blocks   = [
+    "10.0.0.64/26",  # pri01: 10.0.0.64/26
+    "10.0.0.128/26"  # pri02: 10.0.0.128/64
+  ]
+  secondary_vpc_database_subnet_group_name  = "secondary-prod-ecom-subgroup-rds"
+  secondary_vpc_id                          = module.vpc_secondary.vpc_id
+  # 해당 리전 aurora 클러스터에 적용할 보안그룹에서 허용할 cidr
+  secondary_vpc_private_subnets_cidr_blocks = [
+    "10.0.0.64/26",  # pri01: 10.0.0.64/26
+    "10.0.0.128/26"  # pri02: 10.0.0.128/64
+  ]
+
+  node_security_group_ids = [module.eks.node_security_group_id]
+
+  primary_azs   = module.vpc_primary.azs
+  secondary_azs = module.vpc_secondary.azs
 }

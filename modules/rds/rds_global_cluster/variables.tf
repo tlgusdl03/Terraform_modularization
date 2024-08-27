@@ -21,6 +21,45 @@ variable "database_name" {
 
 variable "storage_encrypted" {
   type        = bool
-  default     = false
+  default     = true
   description = "Specifies whether the storage is encrypted"
+}
+
+variable "primary_vpc_id" {
+  description = "Specifies whether the storage is encrypted"
+  type = string
+}
+
+variable "primary_vpc_database_subnet_group_name" {
+  description = "used primary vpc subnet group"
+  type = any
+}
+
+variable "primary_vpc_private_subnets_cidr_blocks" {
+  description = "using to set ingress of sg for primary"
+  type = any
+}
+
+variable "secondary_vpc_id" {
+  type = string
+}
+
+variable "secondary_vpc_database_subnet_group_name" {
+  type = any
+}
+
+variable "secondary_vpc_private_subnets_cidr_blocks" {
+  type = any
+}
+
+variable "node_security_group_ids" {
+  type = any
+}
+
+variable "primary_azs" {
+  type = any
+}
+
+variable "secondary_azs" {
+  type = any
 }

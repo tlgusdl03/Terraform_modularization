@@ -1,19 +1,14 @@
 
 # modules/rds_secondary/variables.tf
-variable "module_version" {
-  type        = string
-  description = "The version of the RDS module to use"
-}
-
-variable "aws_provider" {
-  type        = string
-  description = "The provider for AWS (secondary region)"
-}
-
 variable "name" {
   type        = string
   description = "The name of the RDS secondary cluster"
 }
+
+# variable "database_name" {
+#   type = string
+#   description = "The name of the database"
+# }
 
 variable "engine" {
   type        = string
@@ -23,6 +18,21 @@ variable "engine" {
 variable "engine_version" {
   type        = string
   description = "The version of the database engine"
+}
+
+# variable "master_username" {
+#   type = string
+#   description = "The name of master user"
+# }
+#
+# variable "secondary_master_password" {
+#   type = string
+#   description = "The master password"
+# }
+
+variable "secondary_kms_key_id" {
+  type = string
+  description = "The KMS key id"
 }
 
 variable "global_cluster_identifier" {
@@ -56,7 +66,7 @@ variable "db_subnet_group_name" {
 }
 
 variable "security_group_rules" {
-  type        = map(any)
+  type        = any
   description = "Security group rules for the RDS instances"
 }
 
@@ -69,4 +79,24 @@ variable "skip_final_snapshot" {
 variable "tags" {
   type        = map(string)
   description = "Tags for the resources"
+}
+
+variable "security_group_name" {
+  type = string
+}
+
+variable "node_security_group_ids" {
+  type = any
+}
+
+variable "master_username" {
+  type = string
+}
+
+variable "master_password" {
+  type = string
+}
+
+variable "secondary_azs" {
+  type = any
 }

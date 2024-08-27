@@ -1,18 +1,8 @@
 
 # modules/rds_primary/variables.tf
-variable "module_version" {
-  type        = string
-  description = "The version of the RDS module to use"
-}
-
 variable "name" {
   type        = string
   description = "The name of the RDS cluster"
-}
-
-variable "database_name" {
-  type        = string
-  description = "The name of the database"
 }
 
 variable "engine" {
@@ -28,6 +18,10 @@ variable "engine_version" {
 variable "master_username" {
   type        = string
   description = "The master username for the database"
+}
+
+variable "master_password" {
+  type = string
 }
 
 variable "global_cluster_identifier" {
@@ -56,7 +50,7 @@ variable "db_subnet_group_name" {
 }
 
 variable "security_group_rules" {
-  type        = map(any)
+  type        = any
   description = "Security group rules for the RDS instances"
 }
 
@@ -69,4 +63,24 @@ variable "skip_final_snapshot" {
 variable "tags" {
   type        = map(string)
   description = "Tags for the resources"
+}
+
+variable "primary_kms_key_id" {
+  type = any
+}
+
+variable "primary_master_password" {
+  type = string
+}
+
+variable "security_group_name" {
+  type = string
+}
+
+variable "node_security_group_ids" {
+  type = any
+}
+
+variable "primary_azs" {
+  type = any
 }

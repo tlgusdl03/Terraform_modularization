@@ -45,8 +45,11 @@ resource "aws_elasticache_replication_group" "redis" {
   subnet_group_name             = aws_elasticache_subnet_group.redis.name
   security_group_ids            = [aws_security_group.redis_sg.id]
   automatic_failover_enabled    = var.automatic_failover_enabled
-  replicas_per_node_group       = var.replicas_per_node_group
+#   num_node_group = var.redis_replicas
+#   replicas_per_node_group       = var.replicas_per_node_group
   preferred_cache_cluster_azs   = var.preferred_cache_cluster_azs
+  num_cache_clusters  = var.redis_number_cache_cluster
+  multi_az_enabled = true
 
   tags = {
     Name = var.replication_group_id

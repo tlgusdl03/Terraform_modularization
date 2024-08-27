@@ -53,7 +53,7 @@ module "vpc" {
     aws = aws.primary
   }
 
-  source = "../../../modules/vpc"
+  source = "../../../modules/vpc_dev"
 
   azs = ["ap-southeast-2a", "ap-southeast-2c"]
   ecr_endpoint_sg_name = "primary-dev-ecom-sg-ecrendpoint-ecr"
@@ -188,6 +188,8 @@ module "single_redis" {
   subnet_ids = module.vpc.database_subnets
   vpc_id                 = module.vpc.vpc_id
   depends_on = [module.vpc]
+
+  redis_number_cache_cluster = 2
 }
 #######################################################################################
 # Create Single aurora

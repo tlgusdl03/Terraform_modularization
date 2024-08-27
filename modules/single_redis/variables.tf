@@ -63,15 +63,22 @@ variable "automatic_failover_enabled" {
   default     = true
 }
 
-variable "replicas_per_node_group" {
-  description = "Number of replicas per node group"
-  type        = number
-  default     = 1
-}
+# variable "replicas_per_node_group" {
+#   description = "Number of replicas per node group"
+#   type        = number
+# }
 
 variable "preferred_cache_cluster_azs" {
   description = "List of preferred availability zones for Redis"
   type        = list(string)
+}
+
+# variable "redis_replicas" {
+#   type = number
+# }
+
+variable "redis_number_cache_cluster" {
+  type = number
 }
 
 # variable "replication_group_name" {
