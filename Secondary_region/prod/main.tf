@@ -121,7 +121,7 @@ module "ec2" {
   pem_location              = "."
   sg_description            = "secondary-prod-ecom-sg-cli"
   sg_name                   = "secondary-prod-ecom-sg-cli"
-  subnet_id                 = data.aws_subnets.public_subnets.ids[0]
+  subnet_id                 = data.aws_subnets.private_subnets.ids[0]
   user_data                 = file("${path.module}/user_data.sh")
   vpc_id                    = data.aws_vpc.secondary_vpc.id
 }
